@@ -6,10 +6,10 @@ class MyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('我的页面'),
+        title: Text('我的'),
       ),
       body: Center(
-        child: Text('我的页面'),
+        child: Text('我的'),
       ),
     );
   }
