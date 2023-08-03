@@ -1,9 +1,15 @@
 // device_page.dart
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:zzsports/pages/devices_list_page.dart';
 
 class DevicePage extends StatelessWidget {
+  late FlutterReactiveBle _reactiveBle;
+
   void _onAddDevicePressed(BuildContext context) {
-    
+    _reactiveBle = Get.find();
+    Get.dialog(DevicesListPage());
   }
 
   @override

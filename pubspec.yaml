@@ -51,6 +51,7 @@ dependencies:
   flutter_web_auth_2: ^2.1.5
   extended_image: ^8.0.2
   syncfusion_flutter_charts: 21.2.4
+  flutter_reactive_ble: ^5.1.1
 #  flutter_blue: ^0.8.0
 
 

@@ -1,15 +1,9 @@
 // main_page.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:zzsports/pages/home_page.dart';
 import 'package:zzsports/pages/device_page.dart';
 import 'package:zzsports/pages/my_page.dart';
-
-// class MainPage extends StatefulWidget {
-//   @override
-//   _MainPageState createState() => _MainPageState();
-// }
 
 class PageController extends GetxController {
   var selectedIndex = 0.obs;
