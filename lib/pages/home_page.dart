@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:zzsports/router.dart';
+import 'package:get/get.dart';
+import 'package:zzsports/pages/detail.dart';
 
 class HomePage extends StatelessWidget {
 
@@ -12,7 +13,7 @@ class HomePage extends StatelessWidget {
   ];
 
   void _onItemPressed(BuildContext context, int index) {
-    router.go('/detail/${_items[index]}');
+    Get.to(DetailPage(itemId: _items[index]));
   }
 
   @override

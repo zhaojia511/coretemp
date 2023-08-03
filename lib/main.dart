@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'router.dart';
+import 'package:get/get.dart';
+import 'package:zzsports/pages/main_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,6 +11,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(routerConfig: router);
+    return GetMaterialApp(home: MainPage());
   }
 }

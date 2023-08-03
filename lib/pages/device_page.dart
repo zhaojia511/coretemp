@@ -2,6 +2,10 @@
 import 'package:flutter/material.dart';
 
 class DevicePage extends StatelessWidget {
+  void _onAddDevicePressed(BuildContext context) {
+    
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,9 +24,7 @@ class DevicePage extends StatelessWidget {
                     ),
                     margin: EdgeInsets.all(10),
                     child: GestureDetector(
-                        onTap: () {
-                          print('Container 被点击了');
-                        },
+                        onTap: () => _onAddDevicePressed(context),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: Row(

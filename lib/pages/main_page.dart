@@ -1,23 +1,26 @@
 // main_page.dart
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:zzsports/pages/home_page.dart';
 import 'package:zzsports/pages/device_page.dart';
 import 'package:zzsports/pages/my_page.dart';
 
-class MainPage extends StatefulWidget {
-  @override
-  _MainPageState createState() => _MainPageState();
+// class MainPage extends StatefulWidget {
+//   @override
+//   _MainPageState createState() => _MainPageState();
+// }
+
+class PageController extends GetxController {
+  var selectedIndex = 0.obs;
+
+  void selectItem(int index) {
+    selectedIndex.value = index;
+  }
 }
 
-class _MainPageState extends State<MainPage> {
-  int _selectedIndex = 0;
-  final List<String> _items = [
-    'jump',
-    'run',
-    'weight',
-    'isometric',
-    'elastic',
-  ];
+class MainPage extends StatelessWidget {
+  final PageController controller = Get.put(PageController());
 
   final List<Widget> _pages = [
     HomePage(),
@@ -25,17 +28,11 @@ class _MainPageState extends State<MainPage> {
     MyPage()
   ];
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
+      body: Obx(() => _pages[controller.selectedIndex.value]),
+      bottomNavigationBar: Obx(() => BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -50,10 +47,10 @@ class _MainPageState extends State<MainPage> {
             label: '我的',
           ),
         ],
-        currentIndex: _selectedIndex,
+        currentIndex: controller.selectedIndex.value,
         selectedItemColor: Colors.blue,
-        onTap: _onItemTapped,
-      ),
+        onTap: controller.selectItem,
+      ),)
     );
   }
 }

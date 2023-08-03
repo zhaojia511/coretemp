@@ -1,6 +1,6 @@
 //detail.dart
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
 
 class DetailPage extends StatelessWidget {
   final String itemId;
@@ -13,7 +13,7 @@ class DetailPage extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: () => Get.back(),
         ),
         title: Text('Detail Page'),
       ),
