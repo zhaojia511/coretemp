@@ -4,13 +4,15 @@ import 'package:zzsports/pages/detail.dart';
 
 class HomePage extends StatelessWidget {
 
-  final List<String> _items = [
+  final List<String> _items = const [
     'jump',
     'run',
     'weight',
     'isometric',
     'elastic',
   ];
+
+  const HomePage({super.key});
 
   void _onItemPressed(BuildContext context, int index) {
     Get.to(DetailPage(itemId: _items[index]));

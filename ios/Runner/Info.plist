@@ -47,5 +47,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>访问蓝牙权限以用于设备数据读取和发送</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>访问蓝牙权限以用于设备数据读取和发送</string>
 </dict>
 </plist>
