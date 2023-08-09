@@ -5,6 +5,7 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:get/get.dart';
 import 'package:zzsports/ble/ble_device_connector.dart';
 import 'package:zzsports/ble/ble_scanner.dart';
+import 'device_list_item.dart';
 
 class DeviceController extends GetxController {
   final scanner = Get.find<BleScanner>();
@@ -46,6 +47,10 @@ class DevicesListPage extends StatelessWidget {
 
   final deviceController = Get.put(DeviceController());
 
+  void _onTapDevice(BuildContext context, DiscoveredDevice device) {
+
+  }
+
   @override
   Widget build(BuildContext context) {
     deviceController.startScan();
@@ -83,21 +88,9 @@ class DevicesListPage extends StatelessWidget {
                 children: [
                   ...deviceController.scannerState.value.discoveredDevices
                       .map(
-                        (device) => ListTile(
-                          title: Text(
-                            device.name.isNotEmpty ? device.name : "Unnamed",
-                          ),
-                          subtitle: Text(
-                            """
-${device.id}
-RSSI: ${device.rssi}
-${device.connectable}
-                      """,
-                          ),
-                          leading: const Icon(Icons.bluetooth),
-                          onTap: () async {
-                            deviceController.stopScan();
-                          },
+                        (device) => DeviceListItem(
+                          device: device,
+                          onTapAction: _onTapDevice,
                         ),
                       )
                       .toList(),

@@ -4,8 +4,7 @@ import 'package:get/get.dart';
 import 'package:zzsports/pages/devices_list_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'device_card.dart';
-
-typedef OnTapAction = Function(BuildContext context);
+import 'package:zzsports/common/common.dart';
 
 class AddDeviceCard extends StatelessWidget {
   const AddDeviceCard({
