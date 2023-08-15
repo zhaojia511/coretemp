@@ -48,7 +48,11 @@ class DeviceCard extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.circle,color: Colors.orange,size: 10,),
+                                Icon(
+                                  Icons.circle,
+                                  color: Colors.orange,
+                                  size: 10,
+                                ),
                                 Text("未佩戴"),
                               ],
                             ),
@@ -61,21 +65,34 @@ class DeviceCard extends StatelessWidget {
                     ],
                   ),
                 )),
-            const Row(
+            Row(
               children: [
-                Expanded(
+                const Expanded(
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Icon(Icons.ac_unit),
-                      Icon(Icons.beach_access),
-                      Icon(Icons.cloud),
-                      Icon(Icons.favorite),
+                      Icon(
+                        Icons.bluetooth_audio,
+                        size: 14,
+                      ),
+                      Icon(
+                        Icons.battery_full,
+                        size: 14,
+                      ),
+                      Icon(
+                        Icons.cloud,
+                        size: 14,
+                      ),
+                      Icon(
+                        Icons.monitor_heart,
+                        size: 14,
+                      ),
                     ],
                   ),
                 ),
-                Expanded(
-                  flex: 2,
-                  child: Row(
+                SizedBox(
+                  width: MediaQuery.of(context).size.width - 130,
+                  child: const Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

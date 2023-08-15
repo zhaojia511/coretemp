@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:get/get.dart';
-import 'package:zzsports/ble/ble_device_connector.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:zzsports/ble/ble_scanner.dart';
 import 'device_list_item.dart';
+import 'package:zzsports/ble/ble_manager.dart';
 
 class DeviceController extends GetxController {
-  final scanner = Get.find<BleScanner>();
-  final connector = Get.find<BleDeviceConnector>();
+  final scanner = BleManager().scanner;
   final Rx<BleScannerState> scannerState =
       Rx<BleScannerState>(const BleScannerState(
     discoveredDevices: [],
@@ -22,7 +22,7 @@ class DeviceController extends GetxController {
     _subscription ??= scanner.state.listen((data) {
       scannerState.value = data;
     });
-    scanner.startScan([Uuid.parse('1809')]);
+    scanner.startScan([Uuid.parse('00002100-5B1E-4347-B07C-97B514DAE121'), Uuid.parse('00004200-F366-40B2-AC37-70CCE0AA83B1')]);
   }
 
   void stopScan() {
@@ -38,7 +38,8 @@ class DeviceController extends GetxController {
   }
 
   void connectDevice(String deviceId) {
-
+    stopScan();
+    BleManager().connectDevice(deviceId);
   }
 }
 
@@ -48,7 +49,8 @@ class DevicesListPage extends StatelessWidget {
   final deviceController = Get.put(DeviceController());
 
   void _onTapDevice(BuildContext context, DiscoveredDevice device) {
-
+    deviceController.connectDevice(device.id);
+    Get.back();
   }
 
   @override

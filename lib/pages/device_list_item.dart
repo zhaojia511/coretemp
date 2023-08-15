@@ -23,7 +23,6 @@ class DeviceListItem extends StatelessWidget {
         """
 ${device.id}
 RSSI: ${device.rssi}
-${device.connectable}
                       """,
       ),
       leading: const Icon(Icons.bluetooth),

@@ -1,10 +1,12 @@
 // device_page.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:zzsports/ble/ble_manager.dart';
 import 'package:zzsports/pages/devices_list_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'device_card.dart';
 import 'package:zzsports/common/common.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
 class AddDeviceCard extends StatelessWidget {
   const AddDeviceCard({
@@ -72,8 +74,19 @@ class AddDeviceCard extends StatelessWidget {
   }
 }
 
+class BleStatusController extends GetxController {
+  // final String deviceId = GetStorage().read("");
+  final Rx<ConnectionStateUpdate> connectState = Rx(const ConnectionStateUpdate(deviceId: "",connectionState: DeviceConnectionState.disconnected,failure: null));
+
+  void bindConnectState() {
+    connectState.bindStream(BleManager().ble.connectedDeviceStream);
+  }
+}
+
 class DevicePage extends StatelessWidget {
-  const DevicePage({super.key});
+  DevicePage({super.key});
+
+  final BleStatusController bleStatusController = Get.put(BleStatusController());
 
   Future<void> _onAddDevicePressed(BuildContext context) async {
     var status = await Permission.bluetooth.status;
@@ -87,6 +100,7 @@ class DevicePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bleStatusController.bindConnectState();
     return Scaffold(
       appBar: AppBar(
         title: const Text('设备'),
@@ -95,8 +109,9 @@ class DevicePage extends StatelessWidget {
         color: Colors.grey,
         child: Column(
           children: [
-            AddDeviceCard(onTapAction: _onAddDevicePressed),
-            DeviceCard(),
+            Obx(() =>
+              (bleStatusController.connectState.value.connectionState == DeviceConnectionState.connected) ? const DeviceCard() : AddDeviceCard(onTapAction: _onAddDevicePressed)
+            )
           ],
         ),
       ),
