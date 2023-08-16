@@ -1,5 +1,6 @@
+import 'dart:core';
+
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'ble_device_connector.dart';
 import 'ble_device_interactor.dart';
@@ -9,6 +10,15 @@ import 'ble_status_monitor.dart';
 
 const String deviceIdKey = "ble_device_id";
 
+const String serviceCBTSUuid = "00002100-5B1E-4347-B07C-97B514DAE121"; //Core Body Temperature Service;
+const String serviceHTSUuid = "1809"; //Health Temperature Service;
+const String serviceDeviceInformationUuid = "180A";
+const String serviceBatteryUuid = "180F";
+
+const String characteristicCBTUuid = "00002101-5B1E-4347-B07C-97B514DAE121";
+const String characteristicTMUuid = "2a1c";
+const String characteristicBatteryLevelUuid = "2a19";
+
 class BleManager {
   static final BleManager _sharedInstance = BleManager._();
 
@@ -16,6 +26,9 @@ class BleManager {
 
   BleManager._() {
     _bleLogger = BleLogger(ble: _ble);
+    // if (deviceId.isNotEmpty) {
+    //   connectDevice(deviceId);
+    // }
   }
 
   final FlutterReactiveBle _ble = FlutterReactiveBle();
@@ -64,9 +77,9 @@ class BleManager {
     // Get.put(_serviceDiscoverer);
   }
 
-  void connectDevice(String deviceId) {
+  Future<void> connectDevice(String deviceId) async {
     GetStorage().write(deviceIdKey, deviceId);
-    connector.connect(deviceId);
+    await connector.connect(deviceId);
   }
 
   String get deviceId {

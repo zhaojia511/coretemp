@@ -110,7 +110,7 @@ class DevicePage extends StatelessWidget {
         child: Column(
           children: [
             Obx(() =>
-              (bleStatusController.connectState.value.connectionState == DeviceConnectionState.connected) ? const DeviceCard() : AddDeviceCard(onTapAction: _onAddDevicePressed)
+              (bleStatusController.connectState.value.connectionState == DeviceConnectionState.connected) ? DeviceCard() : AddDeviceCard(onTapAction: _onAddDevicePressed)
             )
           ],
         ),
