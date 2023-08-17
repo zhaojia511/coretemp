@@ -35,7 +35,7 @@ class AddDeviceCard extends StatelessWidget {
                       Expanded(
                         child: Container(
                           color: Colors.green[500],
-                          padding: EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(10),
                           child: const Row(
                             mainAxisAlignment:
                             MainAxisAlignment.spaceEvenly,

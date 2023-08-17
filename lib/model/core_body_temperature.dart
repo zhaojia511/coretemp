@@ -1,6 +1,7 @@
-import 'package:zzsports/model/temperature_unit.dart';
+import 'package:zzsports/model/temperature.dart';
 
-enum CBTQuality { //核心体温数据的可靠性
+enum CBTQuality {
+  //核心体温数据的可靠性
   invalid,
   poor,
   fair,
@@ -17,18 +18,19 @@ enum CBTQuality { //核心体温数据的可靠性
   }
 }
 
-enum HRMState { //心率测量状态
+enum HRMState {
+  //心率测量状态
   unsupported, //不支持HRM
   supported, //支持但未收到数据
   receiving, //正在接收数据
   unavailable; //状态无法获取
 
   static HRMState hrmStateFromIndex(int index) {
-  if (index >= 0 && index < HRMState.values.length) {
-    return HRMState.values[index];
-  } else {
-    return HRMState.unavailable;
-  }
+    if (index >= 0 && index < HRMState.values.length) {
+      return HRMState.values[index];
+    } else {
+      return HRMState.unavailable;
+    }
   }
 }
 
@@ -38,18 +40,16 @@ class CoreBodyTemperature {
     required this.hrmState,
     required this.dataQuality,
     required this.skinTemperature,
-    required this.unit,
   });
 
-  final double coreTemperature;
-  final double skinTemperature;
+  final Temperature coreTemperature;
+  final Temperature skinTemperature;
   final CBTQuality dataQuality;
   final HRMState hrmState;
-  final TemperatureUnit unit;
 
   static CoreBodyTemperature instanceFromData(List<int> data) {
-    double coreTemperature = 0;
-    double skinTemperature = 0;
+    double coreTemperatureValue = 0;
+    double skinTemperatureValue = 0;
     CBTQuality quality = CBTQuality.unavailable;
     HRMState state = HRMState.unavailable;
     TemperatureUnit unit = TemperatureUnit.C;
@@ -60,22 +60,25 @@ class CoreBodyTemperature {
       int stateNumber = data[7] & 24; //第8个字节的4-5bit表示心率测量状态
       state = HRMState.hrmStateFromIndex(stateNumber);
 
-      unit = TemperatureUnit.unitFromIndex((data[0] & 8)); //第一个字节的第3bit表示单位，0为摄氏度，1为华氏度
+      unit = TemperatureUnit.unitFromIndex(
+          (data[0] & 8)); //第一个字节的第3bit表示单位，0为摄氏度，1为华氏度
 
-      int coreNumber = data[2]*256+data[1];
-      if (coreNumber == 32767) { //若核心温度的两个字节是FF7F，即32767，表示温度无效
+      int coreNumber = data[2] * 256 + data[1];
+      if (coreNumber == 32767) {
+        //若核心温度的两个字节是FF7F，即32767，表示温度无效
         quality = CBTQuality.invalid;
       } else {
-        coreTemperature = coreNumber/100.0;
+        coreTemperatureValue = coreNumber / 100.0;
       }
 
-      int skinNumber = data[4]*256+data[3];
-      skinTemperature = skinNumber/100.0;
+      int skinNumber = data[4] * 256 + data[3];
+      skinTemperatureValue = skinNumber / 100.0;
     }
-    return CoreBodyTemperature(coreTemperature: coreTemperature,
-        hrmState: state,
-        dataQuality: quality,
-        skinTemperature: skinTemperature,
-        unit: unit);
+    return CoreBodyTemperature(
+      coreTemperature: Temperature(unit: unit, value: coreTemperatureValue),
+      hrmState: state,
+      dataQuality: quality,
+      skinTemperature: Temperature(unit: unit, value: skinTemperatureValue),
+    );
   }
 }

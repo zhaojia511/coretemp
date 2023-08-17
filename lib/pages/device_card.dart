@@ -5,17 +5,17 @@ import 'package:zzsports/ble/ble_manager.dart';
 import 'package:zzsports/model/core_body_temperature.dart';
 import 'package:zzsports/model/health_thermometer.dart';
 import 'package:zzsports/pages/device_setting.dart';
-import '../model/temperature_unit.dart';
+import '../model/temperature.dart';
 
 class DeviceDataController extends GetxController {
   final Rx<CoreBodyTemperature> coreTemperature = CoreBodyTemperature(
-      coreTemperature: 0,
+      coreTemperature: Temperature(unit: TemperatureUnit.C, value: 0),
       hrmState: HRMState.unavailable,
       dataQuality: CBTQuality.unavailable,
-      skinTemperature: 0,
-      unit: TemperatureUnit.C).obs;
+      skinTemperature: Temperature(unit: TemperatureUnit.C, value: 0),
+      ).obs;
   
-  final Rx<HealthTemperature> temperature = HealthTemperature(bodyTemperature: 0, unit: TemperatureUnit.C).obs;
+  final Rx<Temperature> healthTemperature = Temperature(value: 0, unit: TemperatureUnit.C).obs;
 
   final RxList<int> batteryLevel = RxList([]);
   final String deviceId = BleManager().deviceId;
@@ -36,7 +36,7 @@ class DeviceDataController extends GetxController {
             characteristicId: Uuid.parse(characteristicTMUuid),
             serviceId: Uuid.parse(serviceHTSUuid),
             deviceId: deviceId);
-    // BleManager().serviceDiscoverer.subScribeToCharacteristic(coreTemperatureCharacteristic).listen((event) { })
+
     coreTemperature.bindStream(BleManager()
         .serviceDiscoverer
         .subScribeToCharacteristic(coreTemperatureCharacteristic)
@@ -45,7 +45,7 @@ class DeviceDataController extends GetxController {
     batteryLevel.bindStream(BleManager()
         .serviceDiscoverer
         .subScribeToCharacteristic(batteryLevelCharacteristic));
-    temperature.bindStream(BleManager()
+    healthTemperature.bindStream(BleManager()
         .serviceDiscoverer
         .subScribeToCharacteristic(temperatureCharacteristic)
         .map(HealthTemperature.instanceFromData)
@@ -90,7 +90,7 @@ class DeviceCard extends StatelessWidget {
                             color: Colors.orange,
                             child: Center(
                               child: Text(
-                                "${dataController.temperature.value.bodyTemperature}",
+                                dataController.healthTemperature.value.toString(),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,

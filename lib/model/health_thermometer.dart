@@ -1,22 +1,9 @@
 import 'dart:math';
+import 'temperature.dart';
 
-import 'package:flutter/cupertino.dart';
-
-import 'temperature_unit.dart';
-
-class HealthTemperature {
-  HealthTemperature({
-    required this.bodyTemperature,
-    required this.unit,
-  });
-
-  final double bodyTemperature;
-  final TemperatureUnit unit;
-
-  static HealthTemperature instanceFromData(List<int> data) {
-    debugPrint("$data");
-
-    double bodyTemperature = 0;
+extension HealthTemperature on Temperature  {
+  static Temperature instanceFromData(List<int> data) {
+    double bodyTemperatureValue = 0;
     TemperatureUnit unit = TemperatureUnit.C;
 
     if (data.length == 5) {
@@ -25,10 +12,10 @@ class HealthTemperature {
       int mantissa = data[3]*256*256+data[2]*256+data[1];
       int exponent = data[0];
 
-      if (mantissa != 65535) {
-        bodyTemperature = mantissa * pow(10, exponent) / 100.0;
+      if (mantissa != 8388607) {
+        bodyTemperatureValue = mantissa * pow(10, exponent) / 100.0;
       }
     }
-    return HealthTemperature(bodyTemperature: bodyTemperature, unit: unit);
+    return Temperature(value: bodyTemperatureValue, unit: unit);
   }
 }
