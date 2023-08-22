@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:zzsports/model/temperature.dart';
 
 enum CBTQuality {
@@ -48,6 +49,8 @@ class CoreBodyTemperature {
   final HRMState hrmState;
 
   static CoreBodyTemperature instanceFromData(List<int> data) {
+    // debugPrint(data.toString());
+
     double coreTemperatureValue = 0;
     double skinTemperatureValue = 0;
     CBTQuality quality = CBTQuality.unavailable;

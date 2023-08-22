@@ -17,7 +17,7 @@ class DeviceDataController extends GetxController {
   
   final Rx<Temperature> healthTemperature = Temperature(value: 0, unit: TemperatureUnit.C).obs;
 
-  final RxList<int> batteryLevel = RxList([]);
+  final RxString batteryLevel = "".obs;
   final String deviceId = BleManager().deviceId;
 
   void bindData() {
@@ -42,14 +42,18 @@ class DeviceDataController extends GetxController {
         .subScribeToCharacteristic(coreTemperatureCharacteristic)
         .map(CoreBodyTemperature.instanceFromData)
     );
-    batteryLevel.bindStream(BleManager()
-        .serviceDiscoverer
-        .subScribeToCharacteristic(batteryLevelCharacteristic));
+
     healthTemperature.bindStream(BleManager()
         .serviceDiscoverer
         .subScribeToCharacteristic(temperatureCharacteristic)
         .map(HealthTemperature.instanceFromData)
     );
+
+    BleManager().serviceDiscoverer.readCharacteristic(batteryLevelCharacteristic).then((value){
+      if (value.isNotEmpty) {
+       batteryLevel.value = value[0].toString();
+      }
+    });
   }
 }
 
@@ -59,7 +63,7 @@ class DeviceCard extends StatelessWidget {
   final DeviceDataController dataController = Get.put(DeviceDataController());
 
   void onSettingPressed() {
-    Get.to(const DeviceSetting());
+    Get.to(DeviceSetting());
   }
 
   @override
@@ -90,7 +94,7 @@ class DeviceCard extends StatelessWidget {
                             color: Colors.orange,
                             child: Center(
                               child: Text(
-                                dataController.healthTemperature.value.toString(),
+                                dataController.batteryLevel.value,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,

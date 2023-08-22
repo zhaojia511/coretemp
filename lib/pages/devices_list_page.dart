@@ -1,45 +1,24 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:zzsports/ble/ble_scanner.dart';
 import 'device_list_item.dart';
 import 'package:zzsports/ble/ble_manager.dart';
 
 class DeviceController extends GetxController {
-  final scanner = BleManager().scanner;
-  final Rx<BleScannerState> scannerState =
-      Rx<BleScannerState>(const BleScannerState(
-    discoveredDevices: [],
-    scanIsInProgress: false,
-  ));
 
-  StreamSubscription? _subscription;
+  final RxList<DiscoveredDevice> devicesList = RxList<DiscoveredDevice>([]);
 
   void startScan() {
-    _subscription ??= scanner.state.listen((data) {
-      scannerState.value = data;
-    });
-    scanner.startScan([Uuid.parse('00002100-5B1E-4347-B07C-97B514DAE121'), Uuid.parse('00004200-F366-40B2-AC37-70CCE0AA83B1')]);
-  }
-
-  void stopScan() {
-    // _subscription?.cancel();
-    scanner.stopScan();
+    BleManager().devices.listen((event) {devicesList.assignAll(event);});
+    BleManager().startScanDevices();
   }
 
   @override
   void onClose() {
     // TODO: implement onClose
-    stopScan();
+    debugPrint("close page");
+    BleManager().stopScanDevices();
     super.onClose();
-  }
-
-  void connectDevice(String deviceId) {
-    stopScan();
-    BleManager().connectDevice(deviceId);
   }
 }
 
@@ -49,7 +28,8 @@ class DevicesListPage extends StatelessWidget {
   final deviceController = Get.put(DeviceController());
 
   void _onTapDevice(BuildContext context, DiscoveredDevice device) {
-    deviceController.connectDevice(device.id);
+    BleManager().stopScanDevices();
+    BleManager().connectDevice(device.id);
     Get.back();
   }
 
@@ -88,12 +68,12 @@ class DevicesListPage extends StatelessWidget {
                 shrinkWrap: true,
                 scrollDirection: Axis.vertical,
                 children: [
-                  ...deviceController.scannerState.value.discoveredDevices
+                  ...deviceController.devicesList.value
                       .map(
                         (device) => DeviceListItem(
-                          device: device,
-                          onTapAction: _onTapDevice,
-                        ),
+                            device: device,
+                            onTapAction: _onTapDevice,
+                          )
                       )
                       .toList(),
                 ],
