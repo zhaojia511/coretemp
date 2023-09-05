@@ -1,12 +1,14 @@
 // device_page.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 import 'package:zzsports/ble/ble_manager.dart';
 import 'package:zzsports/pages/devices_list_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'device_card.dart';
 import 'package:zzsports/common/common.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class AddDeviceCard extends StatelessWidget {
   const AddDeviceCard({
@@ -107,13 +109,10 @@ class DevicePage extends StatelessWidget {
       ),
       body: Material(
         color: Colors.grey,
-        child: Column(
-          children: [
+        child:
             Obx(() =>
               (bleStatusController.connectState.value.connectionState == DeviceConnectionState.connected) ? DeviceCard() : AddDeviceCard(onTapAction: _onAddDevicePressed)
-            )
-          ],
-        ),
+            ),
       ),
     );
   }

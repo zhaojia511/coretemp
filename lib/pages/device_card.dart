@@ -6,19 +6,22 @@ import 'package:zzsports/model/core_body_temperature.dart';
 import 'package:zzsports/model/health_thermometer.dart';
 import 'package:zzsports/pages/device_setting.dart';
 import '../model/temperature.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class DeviceDataController extends GetxController {
   final Rx<CoreBodyTemperature> coreTemperature = CoreBodyTemperature(
-      coreTemperature: Temperature(unit: TemperatureUnit.C, value: 0),
-      hrmState: HRMState.unavailable,
-      dataQuality: CBTQuality.unavailable,
-      skinTemperature: Temperature(unit: TemperatureUnit.C, value: 0),
-      ).obs;
-  
-  final Rx<Temperature> healthTemperature = Temperature(value: 0, unit: TemperatureUnit.C).obs;
+    coreTemperature: Temperature(unit: TemperatureUnit.C, value: 0),
+    hrmState: HRMState.unavailable,
+    dataQuality: CBTQuality.unavailable,
+    skinTemperature: Temperature(unit: TemperatureUnit.C, value: 0),
+  ).obs;
+
+  final Rx<Temperature> healthTemperature =
+      Temperature(value: 0, unit: TemperatureUnit.C).obs;
 
   final RxString batteryLevel = "".obs;
   final String deviceId = BleManager().deviceId;
+  final RxList<ChartData> chartDataList = RxList([]);
 
   void bindData() {
     final QualifiedCharacteristic coreTemperatureCharacteristic =
@@ -37,21 +40,31 @@ class DeviceDataController extends GetxController {
             serviceId: Uuid.parse(serviceHTSUuid),
             deviceId: deviceId);
 
-    coreTemperature.bindStream(BleManager()
+    Stream<CoreBodyTemperature> coreTemperatureStream = BleManager()
         .serviceDiscoverer
         .subScribeToCharacteristic(coreTemperatureCharacteristic)
-        .map(CoreBodyTemperature.instanceFromData)
-    );
+        .map(CoreBodyTemperature.instanceFromData).asBroadcastStream();
+
+    coreTemperature.bindStream(coreTemperatureStream);
+    coreTemperatureStream.listen((event) {
+      DateTime time = DateTime.fromMicrosecondsSinceEpoch(event.coreTemperature.timeStamp);
+      double value = event.coreTemperature.value;
+      if (value > 0) {
+        chartDataList.add(ChartData(time, value));
+      }
+    });
 
     healthTemperature.bindStream(BleManager()
         .serviceDiscoverer
         .subScribeToCharacteristic(temperatureCharacteristic)
-        .map(HealthTemperature.instanceFromData)
-    );
+        .map(HealthTemperature.instanceFromData));
 
-    BleManager().serviceDiscoverer.readCharacteristic(batteryLevelCharacteristic).then((value){
+    BleManager()
+        .serviceDiscoverer
+        .readCharacteristic(batteryLevelCharacteristic)
+        .then((value) {
       if (value.isNotEmpty) {
-       batteryLevel.value = value[0].toString();
+        batteryLevel.value = value[0].toString();
       }
     });
   }
@@ -69,116 +82,174 @@ class DeviceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     dataController.bindData();
-    return Container(
-      height: 100,
-      width: MediaQuery.of(context).size.width - 20,
-      margin: const EdgeInsets.all(10.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Obx(
-          () => Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                  flex: 2,
-                  child: IntrinsicHeight(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            color: Colors.orange,
-                            child: Center(
-                              child: Text(
-                                dataController.batteryLevel.value,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
+    return Column(
+      children: [
+        Container(
+          height: 100,
+          width: MediaQuery.of(context).size.width - 20,
+          margin: const EdgeInsets.all(10.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                    flex: 2,
+                    child: IntrinsicHeight(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              color: Colors.orange,
+                              child: Center(
+                                child: Obx(
+                                  () => Text(
+                                    dataController
+                                        .coreTemperature.value.coreTemperature
+                                        .toString(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width - 150,
-                          child: const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+                          const SizedBox(width: 10),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width - 180,
+                            child: Obx(() {
+                              Temperature temperature =
+                                  dataController.healthTemperature.value;
+                              Temperature coreTemperature = dataController
+                                  .coreTemperature.value.coreTemperature;
+                              String stateString = "未佩戴";
+                              String tipString = "请佩戴设备接收数据";
+                              if (temperature.value > 0) {
+                                if (coreTemperature.value > 0) {
+                                  stateString = "接收数据中...";
+                                  tipString = "正在接收数据...";
+                                } else {
+                                  stateString = "等待有效数据...";
+                                  tipString = "正在接收数据...";
+                                }
+                              }
+
+                              debugPrint(coreTemperature.toString());
+                              debugPrint(temperature.toString());
+
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    Icons.circle,
-                                    color: Colors.orange,
-                                    size: 10,
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.circle,
+                                        color: Colors.orange,
+                                        size: 10,
+                                      ),
+                                      Text(stateString),
+                                    ],
                                   ),
-                                  Text("未佩戴"),
+                                  const Text(
+                                    "Core",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Text(
+                                    tipString,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  // Add your content inside this Column
                                 ],
-                              ),
-                              Text("Core"),
-                              Text("请佩戴设备接收数据"),
-                              // Add your content inside this Column
-                            ],
+                              );
+                            }),
                           ),
-                        ),
-                        SizedBox(
-                          width: 40,
-                          child: IconButton(
-                              color: Colors.grey,
-                              onPressed: onSettingPressed,
-                              icon: const Icon(Icons.settings)),
-                        ),
-                      ],
+                          SizedBox(
+                            width: 40,
+                            child: IconButton(
+                                color: Colors.grey,
+                                onPressed: onSettingPressed,
+                                icon: const Icon(Icons.settings)),
+                          ),
+                        ],
+                      ),
+                    )),
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Icon(
+                            Icons.bluetooth_audio,
+                            size: 14,
+                          ),
+                          Icon(
+                            Icons.battery_full,
+                            size: 14,
+                          ),
+                          Icon(
+                            Icons.cloud,
+                            size: 14,
+                          ),
+                          Icon(
+                            Icons.monitor_heart,
+                            size: 14,
+                          ),
+                        ],
+                      ),
                     ),
-                  )),
-              Row(
-                children: [
-                  const Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Icon(
-                          Icons.bluetooth_audio,
-                          size: 14,
-                        ),
-                        Icon(
-                          Icons.battery_full,
-                          size: 14,
-                        ),
-                        Icon(
-                          Icons.cloud,
-                          size: 14,
-                        ),
-                        Icon(
-                          Icons.monitor_heart,
-                          size: 14,
-                        ),
-                      ],
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width - 130,
+                      child: const Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Text 1'),
+                          Text('Text 2'),
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width - 130,
-                    child: const Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Text 1'),
-                        Text('Text 2'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-      ),
+        Obx(() {
+          final chartData = dataController.coreTemperature.stream.toList();
+          return SfCartesianChart(
+            backgroundColor: Colors.white,
+            primaryXAxis: DateTimeAxis(
+              intervalType: DateTimeIntervalType.seconds,
+            ),
+            series: <ChartSeries>[
+              SplineSeries<ChartData, DateTime>(
+                  dataSource: dataController.chartDataList.value,
+                  xValueMapper: (ChartData data, _) => data.time,
+                  yValueMapper: (ChartData data, _) => data.value),
+            ],
+          );
+        }),
+      ],
     );
   }
+}
+
+class ChartData {
+  ChartData(this.time, this.value);
+  final DateTime time;
+  final double value;
 }

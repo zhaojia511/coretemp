@@ -19,9 +19,10 @@ class Temperature {
 
   final TemperatureUnit unit;
   final double value;
+  final int timeStamp = DateTime.now().microsecondsSinceEpoch;
 
   @override String toString() {
     // TODO: implement toString
-      return "$value${unit.toString()}";
+      return (value > 0) ? "$value${unit.toString()}" : "--${unit.toString()}";
   }
 }
