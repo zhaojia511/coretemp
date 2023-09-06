@@ -1,3 +1,5 @@
+import 'package:equatable/equatable.dart';
+
 enum TemperatureUnit {
   C,
   F;
@@ -11,7 +13,7 @@ enum TemperatureUnit {
   }
 }
 
-class Temperature {
+class Temperature extends Equatable {
   Temperature({
     required this.unit,
     required this.value,
@@ -25,4 +27,8 @@ class Temperature {
     // TODO: implement toString
       return (value > 0) ? "$value${unit.toString()}" : "--${unit.toString()}";
   }
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [value, unit];
 }

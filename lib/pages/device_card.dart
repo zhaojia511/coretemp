@@ -42,13 +42,14 @@ class DeviceDataController extends GetxController {
 
     Stream<CoreBodyTemperature> coreTemperatureStream = BleManager()
         .serviceDiscoverer
-        .subScribeToCharacteristic(coreTemperatureCharacteristic)
-        .map(CoreBodyTemperature.instanceFromData).asBroadcastStream();
+        .subScribeToCharacteristic(coreTemperatureCharacteristic).
+        map(CoreBodyTemperature.instanceFromData).distinct().asBroadcastStream();
 
     coreTemperature.bindStream(coreTemperatureStream);
     coreTemperatureStream.listen((event) {
       DateTime time = DateTime.fromMicrosecondsSinceEpoch(event.coreTemperature.timeStamp);
       double value = event.coreTemperature.value;
+      debugPrint(event.coreTemperature.toString());
       if (value > 0) {
         chartDataList.add(ChartData(time, value));
       }
@@ -142,9 +143,6 @@ class DeviceCard extends StatelessWidget {
                                 }
                               }
 
-                              debugPrint(coreTemperature.toString());
-                              debugPrint(temperature.toString());
-
                               return Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,15 +227,43 @@ class DeviceCard extends StatelessWidget {
           ),
         ),
         Obx(() {
-          final chartData = dataController.coreTemperature.stream.toList();
           return SfCartesianChart(
             backgroundColor: Colors.white,
             primaryXAxis: DateTimeAxis(
-              intervalType: DateTimeIntervalType.seconds,
+              intervalType: DateTimeIntervalType.minutes,
+            ),
+            primaryYAxis: NumericAxis(
+              interval: 1,
             ),
             series: <ChartSeries>[
               SplineSeries<ChartData, DateTime>(
                   dataSource: dataController.chartDataList.value,
+                  // dataSource: [
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:29"), 37.1),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:30"), 37.1),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:31"), 37.1),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:32"), 37.1),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:33"), 37.1),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:34"), 37.1),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:35"), 37.1),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:36"), 37.1),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:37"), 37.1),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:38"), 37.1),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:39"), 37.0),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:40"), 37.0),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:41"), 37.0),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:42"), 37.0),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:43"), 37.0),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:44"), 37.0),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:45"), 37.0),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:46"), 37.0),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:47"), 37.0),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:48"), 37.0),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:49"), 37.0),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:50"), 37.1),
+                  //   ChartData(DateTime.parse("2023-09-05 16:51:51"), 37.1),
+                  // ],
+                  splineType: SplineType.natural,
                   xValueMapper: (ChartData data, _) => data.time,
                   yValueMapper: (ChartData data, _) => data.value),
             ],

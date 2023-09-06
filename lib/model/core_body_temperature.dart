@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:zzsports/model/temperature.dart';
+import 'package:equatable/equatable.dart';
 
 enum CBTQuality {
   //核心体温数据的可靠性
@@ -35,8 +35,8 @@ enum HRMState {
   }
 }
 
-class CoreBodyTemperature {
-  CoreBodyTemperature({
+class CoreBodyTemperature extends Equatable {
+  const CoreBodyTemperature({
     required this.coreTemperature,
     required this.hrmState,
     required this.dataQuality,
@@ -84,4 +84,8 @@ class CoreBodyTemperature {
       skinTemperature: Temperature(unit: unit, value: skinTemperatureValue),
     );
   }
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [coreTemperature];
 }
