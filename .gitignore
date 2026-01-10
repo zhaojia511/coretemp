@@ -19,7 +19,6 @@
 **/ios/Runner/GoogleService-Info.plist
 **/ios/Runner/Pods/
 **/ios/Runner/Runner.xcodeproj/
-**/lib/generated_plugin_registrant.dart
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
